@@ -1,7 +1,31 @@
 # import bluetooth
 import pymongo
+import pika
 import time
 
+# Establish RabbitMQ connection
+credentials = pika.PlainCredentials('admin', 'password')
+parameters = pika.ConnectionParameters('172.29.103.197',
+                                       5672,
+                                       '/',
+                                       credentials)
+
+connection = pika.BlockingConnection(parameters)
+channel = connection.channel()
+
+Place = 'Squires'
+Subject = 'Food'
+Message = 'This food sucks!'
+
+channel.exchange_declare(exchange=Place, exchange_type='direct')
+
+channel.basic_publish(exchange=Place,
+                      routing_key=Subject,
+                      body=Message)
+
+connection.close()
+
+# Send messages through mongoDB
 s1 = "p:Squires+Rooms “I like the comfortable chairs on 3rd floor”"
 s2 = "c:Goodwin+Rooms “John sucks”"
 s3 = "c:Goodwin+Rooms “Karthik is racist”"
