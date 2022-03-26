@@ -2,61 +2,71 @@
 import pymongo
 import pika
 import time
+import sys
+import bluetooth
+#import pybluez
 
-# Establish RabbitMQ connection
-credentials = pika.PlainCredentials('admin', 'password')
-parameters = pika.ConnectionParameters('172.29.103.197',
-                                       5672,
-                                       '/',
-                                       credentials)
+if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
+    raspIP = sys.argv[2]
 
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
+    # Establish RabbitMQ connection
+    credentials = pika.PlainCredentials('admin', 'password')
+    parameters = pika.ConnectionParameters(raspIP,
+                                           5672,
+                                           '/',
+                                           credentials)
 
-Place = 'Squires'
-Subject = 'Food'
-Message = 'This food sucks!'
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
 
-channel.exchange_declare(exchange=Place, exchange_type='direct')
+    Place = 'Squires'
+    Subject = 'Food'
+    Message = 'This food sucks!'
 
-channel.basic_publish(exchange=Place,
-                      routing_key=Subject,
-                      body=Message)
+    channel.exchange_declare(exchange=Place, exchange_type='direct')
 
-connection.close()
+    channel.basic_publish(exchange=Place,
+                          routing_key=Subject,
+                          body=Message)
 
-# Send messages through mongoDB
-s1 = "p:Squires+Rooms “I like the comfortable chairs on 3rd floor”"
-s2 = "c:Goodwin+Rooms “John sucks”"
-s3 = "c:Goodwin+Rooms “Karthik is racist”"
-stringList = [s1, s2, s3]
+    connection.close()
 
-# Producer command
-connect = pymongo.MongoClient()
-for s in stringList:
-    action = s[0]
-    warehouse = s[2:s.find('+')]
-    msgID = msgID = "{team}'$'{ticks}".format(team="14", ticks=time.time())
+    # Send messages through mongoDB
+    s1 = "p:Squires+Rooms “I like the comfortable chairs on 3rd floor”"
+    s2 = "c:Goodwin+Rooms “John sucks”"
+    s3 = "c:Goodwin+Rooms “Karthik is racist”"
+    stringList = [s1, s2, s3]
 
-    # go to specified database
-    db = connect[warehouse]
+    # Producer command
+    connect = pymongo.MongoClient()
+    for s in stringList:
+        action = s[0]
+        warehouse = s[2:s.find('+')]
+        msgID = msgID = "{team}'$'{ticks}".format(team="14", ticks=time.time())
 
-    collection = s[s.find('+') + 1: s.find(' ')]
-    text = s[s.find(' ') + 1:]
+        # go to specified database
+        db = connect[warehouse]
 
-    # create collection
-    myCollection = connect[warehouse][collection]
+        collection = s[s.find('+') + 1: s.find(' ')]
+        text = s[s.find(' ') + 1:]
 
-    data = {
-     "Action": action,
-     "Place": warehouse,
-     "MsgID": msgID,
-     "Subject": collection,
-     "Message": text
-    }
+        # create collection
+        myCollection = connect[warehouse][collection]
 
-    myCollection.insert_one(data)
+        data = {
+            "Action": action,
+            "Place": warehouse,
+            "MsgID": msgID,
+            "Subject": collection,
+            "Message": text
+        }
 
+        myCollection.insert_one(data)
+else:
+    print("ERROR: Invalid Input")
+
+
+macADDR = '9c:b6:d0:b8:94:c8'
 
 """
 # bluetooth connection
