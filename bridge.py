@@ -78,8 +78,8 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
                                        queue=collection,
                                        routing_key=collection)
 
-                    channel.basic_consume(callback,
-                                          queue=collection,
+                    channel.basic_consume(queue=collection,
+                                          on_message_callback=callback,
                                           no_ack=True)
 
                     channel.start_consuming()
