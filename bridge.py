@@ -38,7 +38,7 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
         while True:
             # Message from bluetooth connection
             s = client_sock.recv(1024)
-            print("received [%s]" % data)
+            print("received [%s]" % s)
             if not s:
                 break
             action = s[0]
