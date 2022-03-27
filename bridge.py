@@ -47,7 +47,10 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
             # Check and perform valid action and send to mongoDB
             if action == 'p' or action == 'c':
                 warehouse = s[2:s.find('+')]
-                collection = s[s.find('+') + 1: s.find(' ')]
+                if action == 'p':
+                    collection = s[s.find('+') + 1: s.find(' ')]
+                else:
+                    collection = s[s.find('+') + 1:]
                 print(action, warehouse, collection)
                 text = s[s.find(' ') + 1:]
                 msgID = msgID = "{team}'$'{ticks}".format(team="14", ticks=time.time())
@@ -55,7 +58,6 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
                 """
                 # go to specified database
                 db = connect[warehouse]
-
                 # create collection and send to MongoDB
                 myCollection = connect[warehouse][collection]
                 data = {
@@ -68,12 +70,9 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
                 myCollection.insert_one(data)
                 """
                 if action == 'p':
-                    # channel.exchange_declare(exchange=warehouse, exchange_type='direct')
-
                     channel.basic_publish(exchange=warehouse,
                                           routing_key=collection,
                                           body=text)
-                    print(warehouse, collection)
                 else:
                     channel.queue_bind(exchange=warehouse,
                                        queue=collection,
