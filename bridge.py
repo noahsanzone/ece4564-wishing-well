@@ -37,19 +37,22 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
         print("Accepted connection from", client_info)
         while True:
             # Message from bluetooth connection
-            s = client_sock.recv(1024)
+            s = client_sock.recv(1024).decode()
             print("received [%s]" % s)
             if not s:
                 break
             action = s[0]
+            print(action)
 
             # Check and perform valid action and send to mongoDB
             if action == 'p' or action == 'c':
                 warehouse = s[2:s.find('+')]
                 collection = s[s.find('+') + 1: s.find(' ')]
+                print(action, warehouse, collection)
                 text = s[s.find(' ') + 1:]
                 msgID = msgID = "{team}'$'{ticks}".format(team="14", ticks=time.time())
 
+                """
                 # go to specified database
                 db = connect[warehouse]
 
@@ -63,14 +66,14 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
                     "Message": text
                 }
                 myCollection.insert_one(data)
-
+                """
                 if action == 'p':
-                    channel.exchange_declare(exchange=warehouse,
-                                             exchange_type='direct')
+                    # channel.exchange_declare(exchange=warehouse, exchange_type='direct')
 
                     channel.basic_publish(exchange=warehouse,
                                           routing_key=collection,
                                           body=text)
+                    print(warehouse, collection)
                 else:
                     channel.queue_bind(exchange=warehouse,
                                        queue=collection,
