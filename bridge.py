@@ -38,24 +38,25 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
         while True:
             # Message from bluetooth connection
             s = client_sock.recv(1024).decode()
-            print("received [%s]" % s)
+            #print("Received:", s)
             if not s:
                 break
             action = s[0]
-            print(action)
+
+            #use try except
+                #if it is a keyboard then sys.exit()
 
             # Check and perform valid action and send to mongoDB
             if action == 'p' or action == 'c':
                 warehouse = s[2:s.find('+')]
+                msgID = msgID = "{team}'$'{ticks}".format(team="14", ticks=time.time())
                 if action == 'p':
                     collection = s[s.find('+') + 1: s.find(' ')]
+                    text = s[s.find(' ') + 1:]
                 else:
                     collection = s[s.find('+') + 1:]
-                print(action, warehouse, collection)
-                text = s[s.find(' ') + 1:]
-                msgID = msgID = "{team}'$'{ticks}".format(team="14", ticks=time.time())
-
-                """
+                    text = ""
+                print("[Checkpoint 01 Timestamp] Message Captured:", text)
                 # go to specified database
                 db = connect[warehouse]
                 # create collection and send to MongoDB
@@ -67,8 +68,11 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
                     "Subject": collection,
                     "Message": text
                 }
+
+                print("[Checkpoint 02 Timestamp] Store command in MongoDB instance:", data)
                 myCollection.insert_one(data)
-                """
+                print("[Checkpoint 03 Timestamp] Print out RabbitMQ command sent to the Repository RPi:", s)
+
                 if action == 'p':
                     channel.basic_publish(exchange=warehouse,
                                           routing_key=collection,
@@ -80,7 +84,7 @@ if (len(sys.argv) == 3) and (sys.argv[1] == "-s"):
 
                     channel.basic_consume(queue=collection,
                                           on_message_callback=callback,
-                                          no_ack=True)
+                                          auto_ack=True)
 
                     channel.start_consuming()
             else:
