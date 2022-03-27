@@ -8,14 +8,17 @@ port = 1
 sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 sock.connect((bd_addr, port))
 
-loop = True
-while loop:
-    keepLoop = input("Send another message? Y/N")
-    if keepLoop == "N":
-        break
+command = input("What message would you like to send?: ")
 
-    command = input("What message would you like to send?: ")
+while command:
+    #keepLoop = input("Send another message? Y/N: ")
+    # if keepLoop == "N":
+    #     loop = False
+    #     break
+    #
+    # command = input("What message would you like to send?: ")
 
     sock.send(command)
+    command = input("What message would you like to send?: ")
 
 sock.close()
